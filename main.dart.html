@@ -1,0 +1,174 @@
+<html>
+<head>
+<title>main.dart</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #a9b7c6;}
+.s1 { color: #6a8759;}
+.s2 { color: #cc7832;}
+.s3 { color: #6897bb;}
+.s4 { color: #808080;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+main.dart</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">'package:flutter/material.dart'</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">'package:http/http.dart' </span><span class="s0">as http</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">'dart:convert'</span><span class="s2">;</span>
+
+<span class="s2">void </span><span class="s0">main() {</span>
+  <span class="s0">runApp(MyApp())</span><span class="s2">;</span>
+<span class="s0">}</span>
+
+<span class="s2">class </span><span class="s0">GithubService {</span>
+  <span class="s2">final </span><span class="s0">String basicUrl = </span><span class="s1">'https://api.github.com'</span><span class="s2">;</span>
+
+  <span class="s0">Future&lt;Map&lt;String</span><span class="s2">, </span><span class="s0">dynamic&gt;&gt; getUserData(String username) async {</span>
+    <span class="s2">final </span><span class="s0">resp = await http.get(Uri.parse(</span><span class="s1">'</span><span class="s0">$basicUrl</span><span class="s1">/users/</span><span class="s0">$username</span><span class="s1">'</span><span class="s0">))</span><span class="s2">;</span>
+    <span class="s2">if </span><span class="s0">(resp.statusCode == </span><span class="s3">200</span><span class="s0">) {</span>
+      <span class="s2">return </span><span class="s0">json.decode(resp.body)</span><span class="s2">;</span>
+    <span class="s0">} </span><span class="s2">else </span><span class="s0">{</span>
+      <span class="s2">throw </span><span class="s0">Exception(</span><span class="s1">'Failed to find the user data'</span><span class="s0">)</span><span class="s2">;</span>
+    <span class="s0">}</span>
+  <span class="s0">}</span>
+<span class="s0">}</span>
+
+<span class="s2">class </span><span class="s0">User {</span>
+  <span class="s2">final </span><span class="s0">int followers</span><span class="s2">;</span>
+
+
+
+  <span class="s2">final </span><span class="s0">int repositories</span><span class="s2">;</span>
+  <span class="s2">final </span><span class="s0">String profilePictureUrl</span><span class="s2">;</span>
+  <span class="s2">final </span><span class="s0">String username</span><span class="s2">;</span>
+
+  <span class="s2">final </span><span class="s0">String bio</span><span class="s2">;</span>
+
+  <span class="s0">User({</span>
+
+
+    <span class="s0">required </span><span class="s2">this</span><span class="s0">.followers</span><span class="s2">,</span>
+    <span class="s0">required </span><span class="s2">this</span><span class="s0">.repositories</span><span class="s2">,</span>
+    <span class="s0">required </span><span class="s2">this</span><span class="s0">.profilePictureUrl</span><span class="s2">,</span>
+    <span class="s0">required </span><span class="s2">this</span><span class="s0">.username</span><span class="s2">,</span>
+
+    <span class="s0">required </span><span class="s2">this</span><span class="s0">.bio</span><span class="s2">,</span>
+  <span class="s0">})</span><span class="s2">;</span>
+<span class="s0">}</span>
+
+<span class="s2">class </span><span class="s0">MyApp </span><span class="s2">extends </span><span class="s0">StatelessWidget {</span>
+  <span class="s0">@override</span>
+  <span class="s0">Widget build(BuildContext context) {</span>
+    <span class="s2">return </span><span class="s0">MaterialApp(</span>
+      <span class="s0">title: </span><span class="s1">'GitHub'</span><span class="s2">,</span>
+      <span class="s0">theme: ThemeData(</span>
+        <span class="s0">primarySwatch: Colors.grey</span><span class="s2">,</span>
+      <span class="s0">)</span><span class="s2">,</span>
+      <span class="s0">home: Search()</span><span class="s2">,</span>
+    <span class="s0">)</span><span class="s2">;</span>
+  <span class="s0">}</span>
+<span class="s0">}</span>
+
+<span class="s2">class </span><span class="s0">Search </span><span class="s2">extends </span><span class="s0">StatefulWidget {</span>
+  <span class="s0">@override</span>
+  <span class="s0">_SearchState createState() =&gt; _SearchState()</span><span class="s2">;</span>
+<span class="s0">}</span>
+
+<span class="s2">class </span><span class="s0">_SearchState </span><span class="s2">extends </span><span class="s0">State&lt;Search&gt; {</span>
+  <span class="s2">final </span><span class="s0">GithubService githubService = GithubService()</span><span class="s2">;</span>
+  <span class="s0">List&lt;User&gt; searchResults = []</span><span class="s2">;</span>
+
+  <span class="s2">void </span><span class="s0">_searchUsers(String query) async {</span>
+    <span class="s2">final </span><span class="s0">userData = await githubService.getUserData(query)</span><span class="s2">;</span>
+    <span class="s2">final </span><span class="s0">user = User(</span>
+      <span class="s0">username: userData[</span><span class="s1">'login'</span><span class="s0">]</span><span class="s2">,</span>
+      <span class="s0">profilePictureUrl: userData[</span><span class="s1">'avatar_url'</span><span class="s0">]</span><span class="s2">,</span>
+      <span class="s0">followers: userData[</span><span class="s1">'followers'</span><span class="s0">]</span><span class="s2">,</span>
+      <span class="s0">repositories: userData[</span><span class="s1">'public_repos'</span><span class="s0">]</span><span class="s2">,</span>
+      <span class="s0">bio: userData[</span><span class="s1">'bio'</span><span class="s0">]</span><span class="s2">,</span>
+    <span class="s0">)</span><span class="s2">;</span>
+    <span class="s0">setState(() {</span>
+      <span class="s0">searchResults = [user]</span><span class="s2">;</span>
+    <span class="s0">})</span><span class="s2">;</span>
+  <span class="s0">}</span>
+
+  <span class="s0">@override</span>
+  <span class="s0">Widget build(BuildContext context) {</span>
+    <span class="s2">return </span><span class="s0">Scaffold(</span>
+      <span class="s0">appBar: AppBar(</span>
+        <span class="s0">title: Text(</span><span class="s1">'GitHub User Search App'</span><span class="s2">,</span>
+          <span class="s0">style: TextStyle(</span>
+            <span class="s0">fontWeight: FontWeight.bold</span><span class="s2">,</span>
+            <span class="s0">fontSize: </span><span class="s3">20</span><span class="s2">,</span><span class="s4">// Adjust the font size as needed</span>
+          <span class="s0">)</span><span class="s2">,</span>
+        <span class="s0">)</span><span class="s2">,</span>
+        <span class="s0">centerTitle: </span><span class="s2">true,</span>
+      <span class="s0">)</span><span class="s2">,</span>
+      <span class="s0">body: Column(</span>
+        <span class="s0">children: [</span>
+          <span class="s0">TextField(</span>
+            <span class="s0">onChanged: _searchUsers</span><span class="s2">,</span>
+            <span class="s0">decoration: InputDecoration(</span>
+              <span class="s0">hintText: </span><span class="s1">'Search users'</span><span class="s2">,</span>
+            <span class="s0">)</span><span class="s2">,</span>
+          <span class="s0">)</span><span class="s2">,</span>
+          <span class="s0">Expanded(</span>
+            <span class="s0">child: ListView.builder(</span>
+              <span class="s0">itemCount: searchResults.length</span><span class="s2">,</span>
+              <span class="s0">itemBuilder: (context</span><span class="s2">, </span><span class="s0">index) {</span>
+                <span class="s2">final </span><span class="s0">user = searchResults[index]</span><span class="s2">;</span>
+                <span class="s2">return </span><span class="s0">ListTile(</span>
+                  <span class="s0">title: Text(user.username)</span><span class="s2">,</span>
+                  <span class="s0">subtitle:Text(user.bio ?? </span><span class="s1">''</span><span class="s0">)</span><span class="s2">,</span>
+                  <span class="s0">leading: CircleAvatar(</span>
+                    <span class="s0">backgroundImage: NetworkImage(user.profilePictureUrl)</span><span class="s2">,</span>
+                  <span class="s0">)</span><span class="s2">,</span>
+                  <span class="s0">onTap: () {</span>
+                    <span class="s0">Navigator.push(</span>
+                      <span class="s0">context</span><span class="s2">,</span>
+                      <span class="s0">MaterialPageRoute(</span>
+                        <span class="s0">builder: (context) =&gt; UserDetailsScreen(user)</span><span class="s2">,</span>
+                      <span class="s0">)</span><span class="s2">,</span>
+                    <span class="s0">)</span><span class="s2">;</span>
+                  <span class="s0">}</span><span class="s2">,</span>
+                <span class="s0">)</span><span class="s2">;</span>
+              <span class="s0">}</span><span class="s2">,</span>
+            <span class="s0">)</span><span class="s2">,</span>
+          <span class="s0">)</span><span class="s2">,</span>
+        <span class="s0">]</span><span class="s2">,</span>
+      <span class="s0">)</span><span class="s2">,</span>
+    <span class="s0">)</span><span class="s2">;</span>
+  <span class="s0">}</span>
+<span class="s0">}</span>
+
+<span class="s2">class </span><span class="s0">UserDetailsScreen </span><span class="s2">extends </span><span class="s0">StatelessWidget {</span>
+  <span class="s2">final </span><span class="s0">User user</span><span class="s2">;</span>
+
+  <span class="s0">UserDetailsScreen(</span><span class="s2">this</span><span class="s0">.user)</span><span class="s2">;</span>
+
+  <span class="s0">@override</span>
+  <span class="s0">Widget build(BuildContext context) {</span>
+    <span class="s2">return </span><span class="s0">Scaffold(</span>
+      <span class="s0">appBar: AppBar(</span>
+        <span class="s0">title: Text(user.username)</span><span class="s2">,</span>
+      <span class="s0">)</span><span class="s2">,</span>
+      <span class="s0">body: Column(</span>
+        <span class="s0">children: [</span>
+          <span class="s0">CircleAvatar(</span>
+            <span class="s0">backgroundImage: NetworkImage(user.profilePictureUrl)</span><span class="s2">,</span>
+          <span class="s0">)</span><span class="s2">,</span>
+          <span class="s0">Text(</span><span class="s1">'Followers: </span><span class="s0">${user.followers}</span><span class="s1">'</span><span class="s0">)</span><span class="s2">,</span>
+          <span class="s0">Text(</span><span class="s1">'Repositories: </span><span class="s0">${user.repositories}</span><span class="s1">'</span><span class="s0">)</span><span class="s2">,</span>
+          <span class="s0">Text(</span><span class="s1">'Bio: </span><span class="s0">${user.bio ?? </span><span class="s1">'N/A'</span><span class="s0">}</span><span class="s1">'</span><span class="s0">)</span><span class="s2">,</span>
+        <span class="s0">]</span><span class="s2">,</span>
+      <span class="s0">)</span><span class="s2">,</span>
+    <span class="s0">)</span><span class="s2">;</span>
+  <span class="s0">}</span>
+<span class="s0">}</span>
+</pre>
+</body>
+</html>
